@@ -73,7 +73,9 @@ static void progress_bar_layer_update(ProgressBarLayer *bar, GContext *ctx) {
 }
 
 static ProgressBarLayer* progress_bar_layer_create(void) {
-  ProgressBarLayer *progress_bar_layer = layer_create_with_data(GRect(6, 120, 130, 8), sizeof(ProgressData));
+  ProgressBarLayer *progress_bar_layer = layer_create_with_data(GRect(PBL_IF_RECT_ELSE(6, 25), 
+                                                                      120, 130, 8), 
+                                                                sizeof(ProgressData));
   layer_set_update_proc(progress_bar_layer, progress_bar_layer_update);
   layer_mark_dirty(progress_bar_layer);
 
@@ -86,15 +88,18 @@ static void progress_bar_destroy(ProgressBarLayer *progress_bar_layer) {
 
 static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
 
-  s_instruction_text = text_layer_create(GRect(0, 0, 144, 73));
+  s_instruction_text = text_layer_create(GRect(PBL_IF_RECT_ELSE(0, 25), PBL_IF_RECT_ELSE(0, 30), 
+                                               bounds.size.w, 73));
   layer_add_child(window_layer, text_layer_get_layer(s_instruction_text));
   text_layer_set_text(s_instruction_text, "[UP] increase speed\n[SEL] reset\n[DN] decrease speed");
 
   s_progress_bar = progress_bar_layer_create();
   layer_add_child(window_layer, s_progress_bar);
 
-  s_done_text = text_layer_create(GRect(50, 74, 94, 20));
+  s_done_text = text_layer_create(GRect(0, bounds.size.h / 2, bounds.size.w, 20));
+  text_layer_set_text_alignment(s_done_text, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_done_text));
 
   // Start the progress timer
